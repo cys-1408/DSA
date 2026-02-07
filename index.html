@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSA Problem Tracker - Select Company</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #6366f1;
+            --primary-hover: #4f46e5;
+            --success-color: #10b981;
+            --bg-dark: #0f172a;
+            --bg-light: #1e293b;
+            --bg-card: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --border-color: #475569;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+            border-radius: 20px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+        }
+
+        .user-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .username {
+            font-size: 0.95rem;
+            opacity: 0.95;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--bg-light);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-card h2 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .search-bar {
+            margin-bottom: 30px;
+            background: var(--bg-light);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 15px 20px;
+            border-radius: 10px;
+            border: 2px solid var(--border-color);
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        #loading {
+            text-align: center;
+            padding: 60px;
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+        }
+
+        .spinner {
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .companies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .company-card {
+            background: var(--bg-light);
+            border: 2px solid var(--border-color);
+            border-radius: 15px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 140px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .company-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--success-color));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .company-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--primary-color);
+            box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.3);
+        }
+
+        .company-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .company-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .company-info {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .company-info span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .badge {
+            background: var(--primary-color);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid rgba(239, 68, 68, 0.5);
+            color: #f87171;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .companies-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="user-info">
+                <span class="username">👤 <span id="currentUsername"></span></span>
+                <button class="logout-btn" onclick="handleLogout()">Logout</button>
+            </div>
+            <h1>🎯 DSA Problem Tracker</h1>
+            <p>Select a company to start tracking your progress</p>
+        </header>
+
+        <div class="stats">
+            <div class="stat-card">
+                <h2 id="totalCompanies">0</h2>
+                <p>Companies</p>
+            </div>
+            <div class="stat-card">
+                <h2 id="totalProblems">0</h2>
+                <p>Total Problems</p>
+            </div>
+            <div class="stat-card">
+                <h2 id="avgProblems">0</h2>
+                <p>Avg Problems/Company</p>
+            </div>
+        </div>
+
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="🔍 Search companies..." oninput="filterCompanies()">
+        </div>
+
+        <div id="loading">
+            <div class="spinner"></div>
+            <p>Loading companies...</p>
+        </div>
+
+        <div id="errorContainer"></div>
+
+        <div id="companiesContainer" style="display: none;">
+            <div class="companies-grid" id="companiesGrid"></div>
+            <div id="noResults" class="no-results" style="display: none;">
+                No companies found matching your search.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Authentication check
+        const sessionToken = localStorage.getItem('session_token');
+        const username = localStorage.getItem('username');
+        
+        if (!sessionToken) {
+            window.location.href = 'login.html';
+        }
+
+        // Display username
+        document.getElementById('currentUsername').textContent = username || 'User';
+
+        function handleLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('session_token');
+                localStorage.removeItem('username');
+                window.location.href = 'login.html';
+            }
+        }
+
+        let allCompanies = [];
+        let companyStats = {};
+
+        async function loadCompanies() {
+            try {
+                // Load companies
+                const companiesResponse = await fetch('/api/companies');
+                if (!companiesResponse.ok) {
+                    throw new Error(`Failed to load companies: ${companiesResponse.status}`);
+                }
+                allCompanies = await companiesResponse.json();
+
+                // Load stats
+                const statsResponse = await fetch('/api/stats');
+                if (!statsResponse.ok) {
+                    throw new Error(`Failed to load stats: ${statsResponse.status}`);
+                }
+                const stats = await statsResponse.json();
+                companyStats = stats.by_company;
+
+                // Update stats
+                document.getElementById('totalCompanies').textContent = stats.total_companies;
+                document.getElementById('totalProblems').textContent = stats.total;
+                document.getElementById('avgProblems').textContent = 
+                    Math.round(stats.total / stats.total_companies);
+
+                // Hide loading, show companies
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('companiesContainer').style.display = 'block';
+
+                renderCompanies();
+            } catch (error) {
+                console.error('Error loading companies:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('errorContainer').innerHTML = `
+                    <div class="error-message">
+                        <h3>⚠️ Error Loading Companies</h3>
+                        <p>${error.message}</p>
+                        <p style="margin-top: 10px; font-size: 0.9rem;">
+                            Make sure the database is initialized:<br>
+                            <code>python init_database.py</code>
+                        </p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderCompanies() {
+            const grid = document.getElementById('companiesGrid');
+            const noResults = document.getElementById('noResults');
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+            // Filter companies
+            const filteredCompanies = allCompanies.filter(company => 
+                company.toLowerCase().includes(searchTerm)
+            );
+
+            if (filteredCompanies.length === 0) {
+                grid.innerHTML = '';
+                noResults.style.display = 'block';
+                return;
+            }
+
+            noResults.style.display = 'none';
+            grid.innerHTML = '';
+
+            filteredCompanies.forEach(company => {
+                const problemCount = companyStats[company] || 0;
+                
+                const card = document.createElement('a');
+                card.href = `problems.html?company=${encodeURIComponent(company)}`;
+                card.className = 'company-card';
+                
+                card.innerHTML = `
+                    <div class="company-name">${escapeHtml(company)}</div>
+                    <div class="company-info">
+                        <span class="badge">${problemCount} problems</span>
+                    </div>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+
+        function filterCompanies() {
+            renderCompanies();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Load companies on page load
+        loadCompanies();
+    </script>
+</body>
+</html>

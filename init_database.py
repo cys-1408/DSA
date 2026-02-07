@@ -5,6 +5,7 @@ Extracts all problems from CSV files and stores them in SQLite database
 """
 
 import os
+import sys
 import csv
 import sqlite3
 from pathlib import Path
@@ -227,12 +228,21 @@ def main():
     # Check if database exists
     db_exists = os.path.exists('dsa_problems.db')
     if db_exists:
-        response = input("\n⚠️  Database already exists. Recreate? (y/N): ").strip().lower()
-        if response == 'y':
-            os.remove('dsa_problems.db')
-            print("✓ Old database removed")
+        # Check if running in interactive terminal
+        if sys.stdin.isatty():
+            # Interactive mode - ask user
+            response = input("\n⚠️  Database already exists. Recreate? (y/N): ").strip().lower()
+            if response == 'y':
+                os.remove('dsa_problems.db')
+                print("✓ Old database removed")
+            else:
+                print("✓ Using existing database")
+                return  # Exit if not recreating
         else:
-            print("✓ Using existing database")
+            # Non-interactive mode (CI/CD, Render, etc.) - use existing database
+            print("\n✓ Database already exists, using existing database")
+            print("   (Running in non-interactive mode)")
+            return  # Exit without recreating
     
     # Create database and schema
     print("\n📦 Creating database schema...")
